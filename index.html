@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الكبائر - رحلة التوبة (للإمام الذهبي)</title>
+    <!-- الخطوط -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- ملف التصميم -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>رحلة التوبة من الكبائر</h1>
+        <h3>المصدر: كتاب الكبائر للذهبي [شمس الدين الذهبي]</h3>
+    </header>
+
+    <div class="container">
+        <div class="top-bar">
+            <div class="stats-container">
+                <div class="stats-text">
+                    <div>تمت التوبة: <span id="repented-count">0</span></div>
+                    <div>لم أرتكبها: <span id="not-committed-count" class="blue-stat">0</span></div>
+                    <div>الإجمالي: <span id="total-completed">0</span> / 70</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+            <button class="btn btn-reset-all" onclick="resetAll()">تصفير الكل</button>
+        </div>
+
+        <div id="sins-container">
+            <p style="text-align: center; padding: 20px;">جاري تحميل البيانات...</p>
+        </div>
+    </div>
+
+    <!-- النافذة المنبثقة -->
+    <div class="modal-overlay" id="sourceModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h2 class="modal-title">كتاب الكبائر للإمام الذهبي</h2>
+            <p id="modalSinTitle" style="font-weight: bold; margin: 5px 0; color: var(--gold); font-size: 1.3rem; font-family: 'Amiri', serif;"></p>
+            
+            <!-- حاوية عرض النص المنسق -->
+            <div class="modal-text-content" id="modalTextBody"></div>
+            
+            <a href="#" target="_blank" class="btn btn-repent" id="modalBtnLink" style="width: auto; margin: 0 auto;">قراءة الكبيرة في موقع الشاملة</a>
+        </div>
+    </div>
+
+    <!-- ملف الجافاسكريبت -->
+    <script src="script.js"></script>
+</body>
+</html>
