@@ -3,11 +3,10 @@
     --light-green: #eaf4eb;
     --gold: #c5a059;
     --dark-gold: #9c7c38;
-    --blue: #2980b9;
+    --blue: #2c3e50;
     --light-blue: #ebf5fb;
     --bg-color: #f8f9fa;
     --text-dark: #2c3e50;
-    --text-light: #7f8c8d;
     --danger: #e74c3c;
     --warning: #f39c12;
 }
@@ -74,12 +73,12 @@ header h3 { font-family: 'Amiri', serif; font-size: 1.5rem; margin: 0 0 5px 0; f
 
 .sin-card.repented { background-color: var(--light-green); border-right-color: var(--primary-green); }
 .sin-card.repented .sin-title { text-decoration: line-through; color: var(--primary-green); opacity: 0.7; }
-
+        
 .sin-card.not-committed { background-color: var(--light-blue); border-right-color: var(--blue); }
 .sin-card.not-committed .sin-title { color: var(--blue); opacity: 0.8; }
 
-.sin-title { font-family: 'Amiri', serif; font-size: 1.5rem; font-weight: bold; margin: 0 0 10px 0; color: var(--primary-green); }
-.sin-desc { font-family: 'Amiri', serif; color: var(--text-dark); margin-bottom: 1.5rem; font-size: 1.15rem; line-height: 1.8;}
+.sin-title { font-family: 'Amiri', serif; font-size: 1.7rem; font-weight: bold; margin: 0 0 10px 0; color: var(--primary-green); }
+.sin-desc { font-family: 'Amiri', serif; color: var(--text-dark); margin-bottom: 1.5rem; font-size: 1.2rem; line-height: 1.8;}
 
 .actions {
     display: flex; gap: 0.8rem; flex-wrap: wrap; background: #f9f9f9;
@@ -89,7 +88,7 @@ header h3 { font-family: 'Amiri', serif; font-size: 1.5rem; margin: 0 0 5px 0; f
 .btn-repent { background-color: var(--primary-green); color: white; }
 .btn-repent:hover { background-color: #0f401b; }
 .btn-not-committed { background-color: #34495e; color: white; }
-.btn-not-committed:hover { background-color: #2c3e50; }
+.btn-not-committed:hover { background-color: #1a252f; }
 .btn-reset-row { background-color: var(--warning); color: white; }
 .btn-reset-row:hover { background-color: #d68910; }
 .btn-source-tab { background-color: transparent; border: 1px solid var(--gold); color: #b8860b; }
@@ -108,7 +107,7 @@ header h3 { font-family: 'Amiri', serif; font-size: 1.5rem; margin: 0 0 5px 0; f
 .repented .repented-badge { display: block; }
 .not-committed .not-committed-badge { display: block; }
 
-/* تنسيقات النافذة المنبثقة والنص المنسق */
+/* النافذة المنبثقة */
 .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center;
@@ -123,6 +122,7 @@ header h3 { font-family: 'Amiri', serif; font-size: 1.5rem; margin: 0 0 5px 0; f
 }
 
 .modal-title { font-family: 'Amiri', serif; color: var(--primary-green); font-size: 1.6rem; margin: 0; }
+.modal-subtitle { font-weight: bold; margin: 5px 0; color: var(--gold); font-size: 1.3rem; font-family: 'Amiri', serif; }
 
 .modal-text-content {
     flex: 1; width: 100%; margin-top: 15px; margin-bottom: 15px;
@@ -132,11 +132,12 @@ header h3 { font-family: 'Amiri', serif; font-size: 1.5rem; margin: 0 0 5px 0; f
     direction: rtl;
 }
 
+/* تنسيقات الآيات والأحاديث */
 .quran-text { 
     color: var(--primary-green); 
     font-family: 'Amiri Quran', serif; 
     font-size: 1.25em; 
-    padding: 0 3px;
+    padding: 0 5px;
     line-height: 2.4;
 }
 .pbuh-text { color: var(--gold); font-weight: bold; }

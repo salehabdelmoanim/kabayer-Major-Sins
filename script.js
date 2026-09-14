@@ -2,12 +2,10 @@ let sins = [];
 let repentedSins = JSON.parse(localStorage.getItem('repentedSins_v4')) || [];
 let notCommittedSins = JSON.parse(localStorage.getItem('notCommittedSins_v4')) || [];
 
-// جلب البيانات من ملف data.json
 async function loadData() {
     try {
         const response = await fetch('data.json');
         if (!response.ok) throw new Error("Network response was not ok");
-        
         sins = await response.json();
         renderSins();
     } catch (error) {
@@ -15,7 +13,7 @@ async function loadData() {
         document.getElementById('sins-container').innerHTML = `
             <div class="error-message">
                 عذراً، حدث خطأ في تحميل ملف البيانات (data.json).<br>
-                تأكد من تشغيل المشروع عبر سيرفر محلي (Live Server) وليس كملف عادي.
+                تأكد من تشغيل المشروع عبر سيرفر محلي (Live Server).
             </div>`;
     }
 }
@@ -72,30 +70,120 @@ function resetAll() {
     }
 }
 
-// المنسق الذكي للنصوص
-function formatArabicText(text) {
+// دالة تنظيف النص من الالتصاقات الناتجة عن السحب
+function fixStuckWords(text) {
     if (!text) return "";
-    
     let formatted = text;
 
-    // إصلاح الكلمات الملتصقة
-    formatted = formatted.replace(/\}([^\s.,،])/g, '} $1');
-    formatted = formatted.replace(/([^\s.,،])\{/g, '$1 {');
-    formatted = formatted.replace(/بِاللَّهفأكبر/g, 'بِاللَّه فأكبر');
-    formatted = formatted.replace(/وَسَلَّمعد/g, 'وَسَلَّم عد');
-    formatted = formatted.replace(/تَعَالَىالْكَبِيرَة/g, 'تَعَالَى الْكَبِيرَة');
+    const fixes = [
+        /بِاللَّهفأكبر/g, 'بِاللَّه فأكبر',
+        /النَّفسقَالَ/g, 'النَّفس قَالَ',
+        /السحرلِأَن/g, 'السحر لِأَن',
+        /الصَّلَاةقَالَ/g, 'الصَّلَاة قَالَ',
+        /الزَّكَاةقَالَ/g, 'الزَّكَاة قَالَ',
+        /عذرقَالَ/g, 'عذر قَالَ',
+        /عذرعَن/g, 'عذر عَن',
+        /عَلَيْهِقَالَ/g, 'عَلَيْهِ قَالَ',
+        /الْوَالِدينقَالَ/g, 'الْوَالِدين قَالَ',
+        /الْأَقَارِبقَالَ/g, 'الْأَقَارِب قَالَ',
+        /الزِّنَاوَبَعضه/g, 'الزِّنَا وَبَعضه',
+        /اللواطقد/g, 'اللواط قد',
+        /اللواطقَدْ/g, 'اللواط قَدْ',
+        /الرِّبَاقَالَ/g, 'الرِّبَا قَالَ',
+        /وظلمهقَالَ/g, 'وظلمه قَالَ',
+        /وَسَلَّمقَالَ/g, 'وَسَلَّم قَالَ',
+        /الزَّحْفإِذا/g, 'الزَّحْف إِذا',
+        /لَهُمقَالَ/g, 'لَهُم قَالَ',
+        /الْكبرالْكبر/g, 'الْكبر الْكبر',
+        /الزُّورقَالَ/g, 'الزُّور قَالَ',
+        /الْخمرقَالَ/g, 'الْخمر قَالَ',
+        /الْقمَارقَالَ/g, 'الْقمَار قَالَ',
+        /الْمُحْصنَاتقَالَ/g, 'الْمُحْصنَات قَالَ',
+        /الْغَنِيمَةوَهِي/g, 'الْغَنِيمَة وَهِي',
+        /السّرقَةقَالَ/g, 'السّرقَة قَالَ',
+        /الطَّرِيققَالَ/g, 'الطَّرِيق قَالَ',
+        /الْغمُوسقَالَ/g, 'الْغمُوس قَالَ',
+        /الظُّلمبِأَكْل/g, 'الظُّلم بِأَكْل',
+        /المكاسوَهُوَ/g, 'المكاس وَهُوَ',
+        /كَانَقَالَ/g, 'كَانَ قَالَ',
+        /نَفسهقَالَ/g, 'نَفسه قَالَ',
+        /أَقْوَالهقَالَ/g, 'أَقْوَاله قَالَ',
+        /السوءقَالَ/g, 'السوء قَالَ',
+        /الحكيمقَالَ/g, 'الحكيم قَالَ',
+        /الحكمقَالَ/g, 'الحكم قَالَ',
+        /بِالنسَاءفِي/g, 'بِالنسَاء فِي',
+        /أَهلهقَالَ/g, 'أَهله قَالَ',
+        /لَهُصَحَّ/g, 'لَهُ صَحَّ',
+        /النَّصَارَىقَالَ/g, 'النَّصَارَى قَالَ',
+        /الرِّيَاءقَالَ/g, 'الرِّيَاء قَالَ',
+        /الْعلمقَالَ/g, 'الْعلم قَالَ',
+        /الْخِيَانَةقَالَ/g, 'الْخِيَانَة قَالَ',
+        /المنانقَالَ/g, 'المنان قَالَ',
+        /بِالْقدرِقَالَ/g, 'بِالْقدرِ قَالَ',
+        /يسرونقَالَ/g, 'يسرون قَالَ',
+        /النماموَهُوَ/g, 'النمام وَهُوَ',
+        /اللعانقَالَ/g, 'اللعان قَالَ',
+        /بالعهدقَالَ/g, 'بالعهد قَالَ',
+        /والمنجمقَالَ/g, 'والمنجم قَالَ',
+        /زَوجهَاقَالَ/g, 'زَوجهَا قَالَ',
+        /بإتلافهاقَالَ/g, 'بإتلافها قَالَ',
+        /الْمُصِيبَةروينَا/g, 'الْمُصِيبَة روينَا',
+        /الْبَغيقَالَ/g, 'الْبَغي قَالَ',
+        /وَالدَّابَّةلِأَن/g, 'وَالدَّابَّة لِأَن',
+        /الْجَارثَبت/g, 'الْجَار ثَبت',
+        /وشتمهمقَالَ/g, 'وشتمهم قَالَ',
+        /عَلَيْهِمقَالَ/g, 'عَلَيْهِم قَالَ',
+        /وخيلاءقَالَ/g, 'وخيلاء قَالَ',
+        /للرِّجَالفِي/g, 'للرِّجَال فِي',
+        /العَبْدروى/g, 'العَبْد روى',
+        /وَجلمثل/g, 'وَجل مثل',
+        /يعلمعَن/g, 'يعلم عَن',
+        /واللددقَالَ/g, 'واللدد قَالَ',
+        /المَاءقَالَ/g, 'المَاء قَالَ',
+        /ذَلِكقَالَ/g, 'ذَلِك قَالَ',
+        /اللهقَالَ/g, 'الله قَالَ',
+        /عذرعَن/g, 'عذر عَن',
+        /الْوَصِيَّةقَالَ/g, 'الْوَصِيَّة قَالَ',
+        /والخديعةقَالَ/g, 'والخديعة قَالَ',
+        /عورتهمفِيهِ/g, 'عورتهم فِيهِ',
+        /عَلَيْهِمثَبت/g, 'عَلَيْهِم ثَبت',
+        /الْمُسلمينقَالَ/g, 'الْمُسلمين قَالَ',
+        /\}([^\s.,،])/g, '} $1',
+        /([^\s.,،])\{/g, '$1 {',
+        /\}الْكَبِيرَة/g, '} الْكَبِيرَة',
+        /\} الْكَبِيرَة/g, '} الْكَبِيرَة' 
+    ];
+
+    for (let i = 0; i < fixes.length; i += 2) {
+        formatted = formatted.replace(fixes[i], fixes[i + 1]);
+    }
+
+    formatted = formatted.replace(/([اأإآؤئءيىوَةتثجحخدذرزسشصضطظعغفقكلمنه])قَالَ/g, '$1 قَالَ');
+    formatted = formatted.replace(/([اأإآؤئءيىوَةتثجحخدذرزسشصضطظعغفقكلمنه])قَدْ/g, '$1 قَدْ');
+
+    // الحل الجذري لمشكلة حذف الآيات: تحديد النطاق بـ 60 حرف كحد أقصى لحذف أرقام الصفحات فقط
+    formatted = formatted.replace(/(?:الكبيرة|الْكَبِيرَة|فصل|موعظة|حكاية|ذكر|حكي)[\s\S]{0,60}?\d+\s+\d+\s*/g, '');
+
+    return formatted;
+}
+
+// المنسق الذكي للنصوص (يضيف الألوان والآيات القرآنية)
+function formatArabicHTML(text) {
+    let formatted = fixStuckWords(text);
     
-    // تلوين الآيات القرآنية بأقواس المصحف
+    // الأقواس والآيات
     formatted = formatted.replace(/\{([^}]+)\}/g, '<span class="quran-text">﴿ $1 ﴾</span>');
     
-    // تلوين وتنسيق عبارة "صلى الله عليه وسلم"
+    // الصلاة على النبي
     formatted = formatted.replace(/(صلى الله عَلَيْهِ وَسلم|صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ)/g, '<span class="pbuh-text">$1</span>');
     
-    // إضافة أسطر جديدة قبل بدايات الأقوال 
-    formatted = formatted.replace(/(قَالَ الله تَعَالَى|قَالَ اللَّهُ تَعَالَى|وَقَالَ تَعَالَى|وَقَالَ الله تَعَالَى|قَالَ النَّبِي|وَقَالَ النَّبِي|وَقَالَ صلى الله|قَالَ رَسُول الله|وَقَالَ رَسُول|وَفِي الصَّحِيح|وَعَن ابْن|وَعَن أبي|وَعَن|قَالَ ابْن|وَقَالَ|روى|عَن أبي|عَن ابْن)/g, '<span class="section-break"></span><span class="narrator-text">$1</span>');
+    // ترتيب صارم للرواة لفصل الفقرات بدون ترك حروف معلقة
+    const narratorsRegex = /(وَقَالَ رَسُولُ اللَّهِ|قَالَ رَسُولُ اللَّهِ|وَقَالَ رَسُول الله|قَالَ رَسُول الله|وَقَالَ الله تَعَالَى|قَالَ الله تَعَالَى|وَقَالَ اللَّهُ تَعَالَى|قَالَ اللَّهُ تَعَالَى|وَقَالَ تَعَالَى|قَالَ تَعَالَى|وَقَالَ النَّبِي|قَالَ النَّبِي|وَقَالَ صلى الله|قَالَ صلى الله|وَفِي الصَّحِيحَيْنِ|فِي الصَّحِيحَيْنِ|وَفِي الصَّحِيح|فِي الصَّحِيح|وَقَالَ ابْن|قَالَ ابْن|وَعَن ابْن|عَن ابْن|وَعَن أبي|عَن أبي|وَعَن|عَن|وَقَالَ|قَالَ|وروى|روى)/g;
+    
+    formatted = formatted.replace(narratorsRegex, '<span class="section-break"></span><span class="narrator-text">$1</span>');
 
-    // تنسيق اسم الكبيرة إن وُجد ملتصقاً في بداية النص
-    formatted = formatted.replace(/(الْكَبِيرَة [^\s]+ )/g, '<span class="section-break"></span><strong>$1</strong>');
+    // إخفاء اسم الكبيرة في البداية إن ظهر مكرراً
+    formatted = formatted.replace(/^(الْكَبِيرَة [^\s]+ [^\s]+)/, '');
 
     return formatted;
 }
@@ -104,19 +192,26 @@ function openModal(id) {
     const sin = sins.find(s => s.id === id);
     document.getElementById('modalSinTitle').innerText = `${sin.id}. ${sin.title}`;
     
-    // تمرير النص الخام على المنسق الذكي قبل عرضه
-    const formattedHTML = formatArabicText(sin.full_content);
-    document.getElementById('modalTextBody').innerHTML = formattedHTML;
+    const formattedHTML = formatArabicHTML(sin.full_content);
+    const textBody = document.getElementById('modalTextBody');
+    textBody.innerHTML = formattedHTML;
     
     document.getElementById('modalBtnLink').href = sin.url;
-    document.getElementById('sourceModal').style.display = 'flex';
+    
+    // إظهار النافذة
+    const modal = document.getElementById('sourceModal');
+    modal.style.display = 'flex';
+    
+    // إرجاع التمرير للأعلى (مهمة جداً لحل مشكلة السكرول)
+    setTimeout(() => {
+        textBody.scrollTop = 0;
+    }, 10);
 }
 
 function closeModal() {
     document.getElementById('sourceModal').style.display = 'none';
 }
 
-// إغلاق النافذة عند الضغط خارجها
 window.onclick = function(event) {
     const modal = document.getElementById('sourceModal');
     if (event.target == modal) { closeModal(); }
@@ -143,8 +238,9 @@ function renderSins() {
         const card = document.createElement('div');
         card.className = `sin-card ${cardClass}`;
         
-        // استخدام مقتطف صغير من النص
-        const shortDesc = sin.full_content.substring(0, 150) + "...";
+        let cleanTextForPreview = fixStuckWords(sin.full_content).replace(/[\{\}]/g, '');
+        let shortDesc = cleanTextForPreview.replace(/^(الْكَبِيرَة [^\s]+ [^\s]+ )/, '');
+        shortDesc = shortDesc.substring(0, 160) + "...";
 
         card.innerHTML = `
             <div class="badge repented-badge">تمت التوبة الحمد لله</div>
@@ -162,5 +258,4 @@ function renderSins() {
     updateStats();
 }
 
-// تحميل البيانات عند فتح الصفحة
 document.addEventListener('DOMContentLoaded', loadData);
